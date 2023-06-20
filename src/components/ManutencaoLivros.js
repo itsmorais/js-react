@@ -30,6 +30,35 @@ const ManutencaoLivro = () => {
     }
   }
 
+  const excluir = async (id,titulo) =>{
+    if(!window.confirm(`Confirma a exclusão do livro ${titulo}`)){
+    return
+    }
+    try{
+      await inAxios.delete(`livros/${id}`)
+      setLivros(livros.filter((livro) => livro.id !== id));
+    }
+    catch(error){
+      alert(`Não foi possível excluir esse livro! ${error}`)
+    }
+  }
+
+  const alterar = async(id,titulo,index) => {
+    const novoPreco = Number(prompt(`Informe o novo preço do livro ${titulo}`))
+
+    if(isNaN(novoPreco) || novoPreco === 0){
+      return;
+    }
+    try{
+      await inAxios.put(`livros/${id}`,{preco:novoPreco});
+      const livrosAlteracao = [...livros]
+      livrosAlteracao[index].preco = novoPreco;
+      setLivros(livrosAlteracao);
+    }catch(error){
+      alert(`Erro... Não foi possível alterar o preço: ${error}`)
+    }
+  }
+
   useEffect(() => {
     obterLista();
   }, [])
@@ -65,10 +94,10 @@ const ManutencaoLivro = () => {
           </tr>
         </thead>
         <tbody>
-          {livros.map((livro) => (
+          {livros.map((livro,index) => (
             <ItemLista key={livro.id} id={livro.id} titulo={livro.titulo}
               autor={livro.autor} ano={livro.ano} preco={livro.preco}
-              foto={livro.foto} />
+              foto={livro.foto} excluirClick={() => excluir(livro.id,livro.titulo)} alterarClick={() => alterar(livro.id,livro.titulo,index)}/>
           ))}
         </tbody>
       </table>
